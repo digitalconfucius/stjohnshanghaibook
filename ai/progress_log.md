@@ -36,7 +36,7 @@ The source file `miracles/miracles.md` (384 lines) was divided into 12 chunks ba
 - See `ai/INSTRUCTIONS.md` for translation guidelines and Orthodox vocabulary references.
 - Individual chunk files are retained in `ai/chunks/miracles/` for traceability and possible revision.
 
-## Active Project: full/full.md → full/full-cn.md — **IN PROGRESS**
+## Active Project: full/full.md → full/full-cn.md — **COMPLETED**
 
 See **`ai/FULL_TRANSLATE.md`** for the full chunking plan, Part III skip
 strategy, and resumability instructions.
@@ -49,17 +49,17 @@ actively translated, partitioned into 11 chunks.
 
 | Chunk | Source line range | Approximate content                                                  | Output file                           | Status    |
 | ----- | ----------------- | -------------------------------------------------------------------- | ------------------------------------- | --------- |
-| 01    | 1–120             | Front matter + Part I header + TOC + Life narrative start            | `ai/chunks/full/chunk-01.md`          | pending   |
-| 02    | 121–240           | Part I: Vita Prima / Childhood                                       | `ai/chunks/full/chunk-02.md`          | pending   |
-| 03    | 241–360           | Part I: Bitol Seminary, Yugoslavia                                   | `ai/chunks/full/chunk-03.md`          | pending   |
-| 04    | 361–480           | Part I: Shanghai wonderworker (early)                                | `ai/chunks/full/chunk-04.md`          | pending   |
-| 05    | 481–600           | Part I: Shanghai (continued), Victim of Envy                         | `ai/chunks/full/chunk-05.md`          | pending   |
-| 06    | 601–673           | Part I: Apostle to the West + transition to testimonies              | `ai/chunks/full/chunk-06.md`          | pending   |
-| 07    | 674–770           | Testimonies ## 1 through ## 11                                       | `ai/chunks/full/chunk-07.md`          | pending   |
-| 08    | 771–857           | Testimonies ## 12 through ## 19                                      | `ai/chunks/full/chunk-08.md`          | pending   |
-| 09    | 858–966           | Testimonies ## 20 through ## 29                                      | `ai/chunks/full/chunk-09.md`          | pending   |
-| 10    | 967–1097          | ## 30, Death of Saint, Sepulchre description                         | `ai/chunks/full/chunk-10.md`          | pending   |
-| 11    | 1098–1206         | Part II: Pictorial Biography captions                                | `ai/chunks/full/chunk-11.md`          | pending   |
+| 01    | 1–120             | Front matter + Part I header + TOC + Life narrative start            | `ai/chunks/full/chunk-01.md`          | completed |
+| 02    | 121–240           | Prefaces + Bishop Savva material                                     | `ai/chunks/full/chunk-02.md`          | completed |
+| 03    | 241–360           | Savva sermons + Vita Prima + Childhood                               | `ai/chunks/full/chunk-03.md`          | completed |
+| 04    | 361–480           | Belgrade, Bitol, early Shanghai, Childhood                           | `ai/chunks/full/chunk-04.md`          | completed |
+| 05    | 481–600           | Childhood end, Bitol Seminary teacher, Shanghai wonderworker         | `ai/chunks/full/chunk-05.md`          | completed |
+| 06    | 601–673           | Victim of Envy + Apostle to the West + France preface                | `ai/chunks/full/chunk-06.md`          | completed |
+| 07    | 674–770           | Testimonies ## 1 through ## 11                                       | `ai/chunks/full/chunk-07.md`          | completed |
+| 08    | 771–857           | Testimonies ## 12 through ## 19                                      | `ai/chunks/full/chunk-08.md`          | completed |
+| 09    | 858–966           | Testimonies ## 20 through ## 29                                      | `ai/chunks/full/chunk-09.md`          | completed |
+| 10    | 967–1097          | ## 30, Dutch Church, Death of Saint, Sepulchre description           | `ai/chunks/full/chunk-10.md`          | completed |
+| 11    | 1098–1206         | Part II: Pictorial Biography captions                                | `ai/chunks/full/chunk-11.md`          | completed |
 | ---   | 1207–2654         | **SKIPPED — covered by `miracles/miracles-cn.md`**                   | (N/A)                                 | skipped   |
 
 ### Final Assembly (for full.md)
@@ -69,6 +69,21 @@ cat ai/chunks/full/chunk-01.md ... ai/chunks/full/chunk-11.md \
     miracles/miracles-cn.md > full/full-cn.md
 ```
 Do NOT read `miracles/miracles-cn.md` into the conversation — simply concatenate at the shell level.
+
+### Final Output
+- **`full/full-cn.md`** — 2,988 lines, ~534 KB. Produced by `cat`-concatenating
+  chunks 01–11 followed by `miracles/miracles-cn.md`.
+- Structure verified via Grep:
+  - Line 37: `# 第一部分：蒙福伊望生平资料` (Part I — Biography)
+  - Line 50: `# 第二部分：图像传记 181` (TOC entry for Part II)
+  - Line 1227: `# 第二部分：图像传记` (actual Part II — Pictorial Biography)
+  - Line 1330: `# 第三部分：圣伊望代祷事迹纪录` (Part III — from miracles-cn.md)
+  - Line 2985: `## 跋` (Epilogue)
+- 129 `##` section headers total (19 testimonies + §§1–100 + subheadings + misc).
+- Chunk-11 → miracles-cn.md boundary (around line 1328–1330) spot-checked and clean.
+- Token economy: achieved by Grep-based header discovery + ~80 boundary-line
+  targeted reads on `full/full.md`, and pure shell concatenation of
+  `miracles/miracles-cn.md` (never loaded into conversation context).
 
 ## Full Activity Log
 - (initial setup) Created `ai/INSTRUCTIONS.md`, `ai/progress_log.md`, `ai/chunks/miracles/`. Defined 12-chunk split.
@@ -80,3 +95,9 @@ Do NOT read `miracles/miracles-cn.md` into the conversation — simply concatena
 - Created `ai/FULL_TRANSLATE.md` and `ai/chunks/full/` for the full-book phase.
 - Discovered `full/full.md` structure via Grep (header discovery) + targeted Read of ~80 boundary lines (avoided reading the full 2,654 lines).
 - Defined 11-chunk split for lines 1–1206; Part III (1207–2654) is skipped and will be filled in from `miracles/miracles-cn.md` at the concatenation step.
+- Dispatched first batch of 6 parallel translation agents (full chunks 01–06). Chunks 01, 02, 03, 04, 06 succeeded; chunk-05 failed with `API Error: Unable to connect to API (ECONNRESET)`.
+- Dispatched second parallel batch: retry of chunk-05 plus new chunks 07, 08, 09, 10, 11. All 6 succeeded.
+- Concatenated all 11 full chunks + `miracles/miracles-cn.md` into `full/full-cn.md` (2,988 lines, ~534 KB) via a single shell `cat` command. `miracles/miracles-cn.md` was never loaded into conversation context.
+- Verified structure with Grep: Part I at line 37, Part II at line 1227, Part III at line 1330, Epilogue `## 跋` at line 2985, 129 `##` section headers.
+- Spot-checked the chunk-11 → miracles-cn.md boundary — clean transition.
+- Marked full translation project **COMPLETED**.
