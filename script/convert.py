@@ -19,6 +19,31 @@ import re
 import sys
 
 
+def normalize_structural_breaks(text):
+    """Insert conservative line breaks around common structural markers."""
+    # Ensure obvious section markers start on their own lines.
+    markers = [
+        r'(PART\s+[IVXLC]+)',
+        r'(Part\s+[IVXLCivxlc]+)',
+        r'(Chapter\s+\d+)',
+        r'(Preface to the [A-Za-z,\s]+Edition)',
+        r"(Editor's Preface)",
+        r'(EPILOGUE)',
+    ]
+    for marker in markers:
+        text = re.sub(rf'\s*{marker}\s*', r'\n\1\n', text)
+
+    # Normalize OCR-split part labels like "PART\nI:".
+    text = re.sub(r'\b(PART|Part)\s*\n\s*([IVXLCivxlc]+)\s*:\s*', r'\1 \2: ', text)
+    text = re.sub(r'\b(PART|Part)\s+([IVXLCivxlc]+)\s*\n\s*:\s*', r'\1 \2: ', text)
+
+    # Split compact numbered entries often found in contents blocks.
+    text = re.sub(r'\s+(\d{1,3}\.)\s+([A-Z])', r'\n\1 \2', text)
+    # Split concatenated table-of-contents items after page numbers.
+    text = re.sub(r'(\d{2,3})\s+([A-Z][a-z])', r'\1\n\2', text)
+    return text
+
+
 def detect_running_headers(text):
     """Auto-detect repeated page header/footer patterns (title + page number)."""
     # Find lines that are just a number (page numbers)
@@ -81,6 +106,18 @@ def remove_running_headers(text, headers=None):
 def convert_headings(text):
     """Convert common heading patterns to Markdown headings."""
 
+    # Inline part headings: "PART II: A PICTORIAL BIOGRAPHY"
+    def inline_part_heading(m):
+        part = m.group(1).strip()
+        subtitle = re.sub(r'\s+', ' ', m.group(2).strip())
+        return f'\n# {part}: {subtitle}\n'
+
+    text = re.sub(
+        r'\n\s*((?:PART|Part)\s+[IVXivxLC]+)\s*:\s*([^\n]{3,120})\n',
+        inline_part_heading,
+        text
+    )
+
     # "Part X\n SUBTITLE" or "Part X" alone -> # Part X: Subtitle
     def part_heading(m):
         part = m.group(1).strip()
@@ -108,6 +145,18 @@ def convert_headings(text):
     text = re.sub(
         r'\n\s*(Part\s+[IVXivx]+|Part\s+\d+|Part\s+I[lI]+)\s*\n',
         part_heading, text
+    )
+
+    # Chapter headings: "Chapter 1 Bishop Savva: ..."
+    def chapter_heading(m):
+        num = m.group(1).strip()
+        title = re.sub(r'\s+', ' ', m.group(2).strip())
+        return f'\n## Chapter {num}: {title}\n'
+
+    text = re.sub(
+        r'\n\s*Chapter\s+(\d{1,3})\s*[:\.-]?\s*([^\n]{3,140})\n',
+        chapter_heading,
+        text
     )
 
     # Numbered headings: "4.\nHealing of Leg Ailments" -> "## 4. Healing of Leg Ailments"
@@ -142,6 +191,65 @@ def convert_headings(text):
     return text
 
 
+def is_heading_like_line(line):
+    """Heuristic to detect lines that should remain separate."""
+    s = line.strip()
+    if not s:
+        return False
+
+    if s.startswith('#'):
+        return True
+
+    if re.match(r'^(Part|PART)\s+[IVXLCivxlc\d]+(?:\b|:)', s):
+        return True
+    if re.match(r'^Chapter\s+\d+\b', s):
+        return True
+    if re.match(r'^(Preface|EPILOGUE|Contents|CONTENTS)\b', s):
+        return True
+    if re.match(r'^\d{1,3}\.\s+[A-Z]', s):
+        return True
+
+    letters = re.sub(r'[^A-Za-z]', '', s)
+    if 6 <= len(s) <= 90 and len(letters) >= 4:
+        upper_ratio = sum(1 for c in letters if c.isupper()) / max(len(letters), 1)
+        if upper_ratio > 0.85:
+            return True
+
+    return False
+
+
+def should_join_lines(previous, current):
+    """Return True if current line likely continues previous paragraph."""
+    prev = previous.strip()
+    cur = current.strip()
+    if not prev or not cur:
+        return False
+
+    if is_heading_like_line(prev) or is_heading_like_line(cur):
+        return False
+
+    if prev.endswith((':', ';')):
+        return False
+    if re.search(r'[.!?]["”’\')\]]?$', prev):
+        return False
+
+    # Do not aggressively merge likely sentence starts into long lines.
+    if re.match(r'^[\(\["“‘]?[A-Z]', cur) and len(prev) > 60:
+        return False
+
+    # Merge only when boundary strongly suggests a wrapped line.
+    prev_ends_with_connector = bool(re.search(r'[a-z0-9,\'"”’\)\]]$', prev))
+    cur_starts_as_continuation = bool(re.match(r'^[a-z0-9\(\["“‘]', cur))
+    if prev_ends_with_connector and cur_starts_as_continuation:
+        return True
+
+    # Special case: if previous line clearly ends mid-word due OCR wrap.
+    if re.search(r'[a-zA-Z]$', prev) and re.match(r'^[a-z]', cur):
+        return True
+
+    return False
+
+
 def rejoin_paragraphs(text):
     """Rejoin lines that were broken by OCR/page formatting into proper paragraphs."""
     lines = text.split('\n')
@@ -157,14 +265,11 @@ def rejoin_paragraphs(text):
             result.append(stripped)
         elif stripped.startswith('- ') or stripped.startswith('* '):
             result.append(stripped)
+        elif is_heading_like_line(stripped):
+            result.append(stripped)
         else:
             # Join to previous line if it's a continuation
-            if (result
-                    and result[-1] != ''
-                    and not result[-1].startswith('#')
-                    and not result[-1].startswith('>')
-                    and not result[-1].endswith(':')
-                    ):
+            if result and result[-1] != '' and should_join_lines(result[-1], stripped):
                 result[-1] += ' ' + stripped
             else:
                 result.append(stripped)
@@ -189,6 +294,7 @@ def convert(input_path, output_path):
         text = f.read()
 
     text = clean_ocr_text(text)
+    text = normalize_structural_breaks(text)
     text = remove_running_headers(text)
     text = convert_headings(text)
     text = rejoin_paragraphs(text)
