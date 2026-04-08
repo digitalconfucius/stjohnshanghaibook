@@ -100,6 +100,13 @@ def remove_running_headers(text, headers=None):
     text = re.sub(r'\n\s*\d{1,4}\s+[A-Z][A-Z\s]{10,}\s*\n', '\n', text)
     text = re.sub(r'\n\s*[A-Z][A-Z\s]{10,}\s+\d{1,4}\s*\n', '\n', text)
 
+    # Remove uppercase running labels with page numbers (e.g. "VITA PRIMA 41")
+    text = re.sub(r'\n\s*[A-Z]{3,}(?:\s+[A-Z]{3,}){1,4}\s+[0-9Oo]{1,3}\s*\n', '\n', text)
+    # Remove inline occurrences inserted inside paragraph text by OCR flow.
+    text = re.sub(r'\s*[A-Z]{3,}(?:\s+[A-Z]{3,}){1,4}\s+[0-9Oo]{1,3}\s*', ' ', text)
+    # Remove lone uppercase running labels without page numbers (e.g. bare "VITA PRIMA").
+    text = re.sub(r'\n\s*[A-Z]{3,}(?:\s+[A-Z]{3,}){1,4}\s*\n', '\n', text)
+
     return text
 
 
@@ -170,6 +177,17 @@ def convert_headings(text):
     text = re.sub(
         r'\n\s*(\d{1,3})\.\s*\n\s*([A-Z][\w\s,\'\'\-]+(?:\n[\w\s,\'\'\-]+)*)\n',
         numbered_heading, text
+    )
+
+    # Single-line numbered all-caps headings: "9. A TRIP TO RUSSIA"
+    def numbered_caps_heading(m):
+        title = re.sub(r'\s+', ' ', m.group(2).strip()).title()
+        return f'\n## {m.group(1)}. {title}\n'
+
+    text = re.sub(
+        r'\n\s*(\d{1,3})\.\s+([A-Z][A-Z\s\'’,\-]{4,90})\s*\n',
+        numbered_caps_heading,
+        text
     )
 
     # Standalone title-case or ALL-CAPS lines that look like section headers
