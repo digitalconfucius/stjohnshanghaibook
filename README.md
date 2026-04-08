@@ -41,3 +41,23 @@ The converter has been run for both source files, and these outputs are availabl
 
 - `full/full.md`
 - `miracles/miracles.md`
+
+## Export Markdown to PDF (Pandoc + Typst)
+
+Install dependencies on macOS:
+
+```bash
+brew install pandoc typst
+```
+
+Build the Chinese PDFs from repository root:
+
+```bash
+pandoc "full/full-cn.md" -o "full/full-cn.pdf" --pdf-engine=typst
+pandoc "miracles/miracles-cn.md" -o "miracles/miracles-cn.pdf" --pdf-engine=typst
+```
+
+Generated files:
+
+- `full/full-cn.pdf`
+- `miracles/miracles-cn.pdf`
