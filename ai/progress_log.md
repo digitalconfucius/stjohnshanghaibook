@@ -35,12 +35,48 @@ The source file `miracles/miracles.md` (384 lines) was divided into 12 chunks ba
 ### Notes for Future Sessions
 - See `ai/INSTRUCTIONS.md` for translation guidelines and Orthodox vocabulary references.
 - Individual chunk files are retained in `ai/chunks/miracles/` for traceability and possible revision.
-- **Next phase** (not yet started): Translate `full/full.md` → `full/full-cn.md` using the same chunking + parallel-agent approach. Create `ai/chunks/full/` when beginning this phase.
 
-### Activity Log
+## Active Project: full/full.md → full/full-cn.md — **IN PROGRESS**
+
+See **`ai/FULL_TRANSLATE.md`** for the full chunking plan, Part III skip
+strategy, and resumability instructions.
+
+### Chunking Plan Summary
+`full/full.md` is 2,654 lines. Part III (lines 1207–2654, the miracles)
+is **skipped** because it is already translated as `miracles/miracles-cn.md`
+and will be appended at the final concatenation step. Only lines 1–1206 are
+actively translated, partitioned into 11 chunks.
+
+| Chunk | Source line range | Approximate content                                                  | Output file                           | Status    |
+| ----- | ----------------- | -------------------------------------------------------------------- | ------------------------------------- | --------- |
+| 01    | 1–120             | Front matter + Part I header + TOC + Life narrative start            | `ai/chunks/full/chunk-01.md`          | pending   |
+| 02    | 121–240           | Part I: Vita Prima / Childhood                                       | `ai/chunks/full/chunk-02.md`          | pending   |
+| 03    | 241–360           | Part I: Bitol Seminary, Yugoslavia                                   | `ai/chunks/full/chunk-03.md`          | pending   |
+| 04    | 361–480           | Part I: Shanghai wonderworker (early)                                | `ai/chunks/full/chunk-04.md`          | pending   |
+| 05    | 481–600           | Part I: Shanghai (continued), Victim of Envy                         | `ai/chunks/full/chunk-05.md`          | pending   |
+| 06    | 601–673           | Part I: Apostle to the West + transition to testimonies              | `ai/chunks/full/chunk-06.md`          | pending   |
+| 07    | 674–770           | Testimonies ## 1 through ## 11                                       | `ai/chunks/full/chunk-07.md`          | pending   |
+| 08    | 771–857           | Testimonies ## 12 through ## 19                                      | `ai/chunks/full/chunk-08.md`          | pending   |
+| 09    | 858–966           | Testimonies ## 20 through ## 29                                      | `ai/chunks/full/chunk-09.md`          | pending   |
+| 10    | 967–1097          | ## 30, Death of Saint, Sepulchre description                         | `ai/chunks/full/chunk-10.md`          | pending   |
+| 11    | 1098–1206         | Part II: Pictorial Biography captions                                | `ai/chunks/full/chunk-11.md`          | pending   |
+| ---   | 1207–2654         | **SKIPPED — covered by `miracles/miracles-cn.md`**                   | (N/A)                                 | skipped   |
+
+### Final Assembly (for full.md)
+After all 11 chunks are completed, concatenate in shell:
+```bash
+cat ai/chunks/full/chunk-01.md ... ai/chunks/full/chunk-11.md \
+    miracles/miracles-cn.md > full/full-cn.md
+```
+Do NOT read `miracles/miracles-cn.md` into the conversation — simply concatenate at the shell level.
+
+## Full Activity Log
 - (initial setup) Created `ai/INSTRUCTIONS.md`, `ai/progress_log.md`, `ai/chunks/miracles/`. Defined 12-chunk split.
-- Dispatched first batch of 6 parallel translation agents (chunks 01–06). All succeeded.
-- Dispatched second batch of 6 parallel translation agents (chunks 07–12). All succeeded.
-- Concatenated all 12 chunks into `miracles/miracles-cn.md` (1,659 lines) in correct order.
-- Verified section sequence runs from Editor's Preface through §100 + Epilogue.
+- Dispatched first batch of 6 parallel translation agents (miracles chunks 01–06). All succeeded.
+- Dispatched second batch of 6 parallel translation agents (miracles chunks 07–12). All succeeded.
+- Concatenated all 12 miracles chunks into `miracles/miracles-cn.md` (1,659 lines) in correct order.
+- Verified miracles section sequence runs from Editor's Preface through §100 + Epilogue.
 - Marked miracles translation project **COMPLETED**.
+- Created `ai/FULL_TRANSLATE.md` and `ai/chunks/full/` for the full-book phase.
+- Discovered `full/full.md` structure via Grep (header discovery) + targeted Read of ~80 boundary lines (avoided reading the full 2,654 lines).
+- Defined 11-chunk split for lines 1–1206; Part III (1207–2654) is skipped and will be filled in from `miracles/miracles-cn.md` at the concatenation step.
