@@ -84,7 +84,9 @@ def convert_headings(text):
     # "Part X\n SUBTITLE" or "Part X" alone -> # Part X: Subtitle
     def part_heading(m):
         part = m.group(1).strip()
-        subtitle = m.group(2).strip().replace('\n', ' ') if m.group(2) else ''
+        # Some regex branches only capture the "Part X" group.
+        subtitle_group = m.group(2) if (m.lastindex and m.lastindex >= 2) else ''
+        subtitle = subtitle_group.strip().replace('\n', ' ') if subtitle_group else ''
         subtitle = re.sub(r'\s+', ' ', subtitle)
         # Fix OCR "Ill" -> "III" etc.
         part = re.sub(r'\bIll\b', 'III', part)
