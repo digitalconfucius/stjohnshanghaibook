@@ -326,3 +326,12 @@ Method:
 - No high-severity meaning reversals were found in Chinese for the audited risky set.
 - Residual uncertainty remains concentrated in very long sections where details are dense (`19`, `57`, `71`), but overall verdict remains: **translation is broadly reliable at meaning level**.
 
+---
+
+## Final Summary (2026-04-08)
+- Date: **Wednesday, Apr 8, 2026**
+- Scope completed: all previously flagged risky sections were rechecked against visual page renders of `miracles/miracles-original.pdf`, then compared with `miracles/miracles-cn.md`.
+- What was verified: section boundaries, core event claims, doctrinal distinctions, and major chronology in each risky section.
+- Outcome: no major meaning reversals were found in the Chinese translation across the audited risky set.
+- Confidence note: remaining caution is limited to dense, long passages where English source readability is naturally lower (`19`, `57`, `71`), but overall meaning-level fidelity remains strong.
+
